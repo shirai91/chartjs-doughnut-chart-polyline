@@ -6,7 +6,7 @@ const data = {
   datasets: [
     {
       label: "# of Votes",
-      data: [1, 19, 3, 5, 2, 3],
+      data: [1, 2, 3, 4, 100, 3999],
       backgroundColor: [
         "rgba(255, 99, 132, 0.2)",
         "rgba(54, 162, 235, 0.2)",
@@ -31,6 +31,21 @@ const data = {
       }
     }
   ]
+};
+
+const getSuitableY = (y, yArray = [], direction) => {
+  let result = y;
+  yArray.forEach((existedY) => {
+    if (existedY - 14 < result && existedY + 14 > result) {
+      if (direction === "right") {
+        result = existedY + 14;
+      } else {
+        result = existedY - 14;
+      }
+    }
+  });
+
+  return result;
 };
 
 const plugins = [
@@ -80,22 +95,17 @@ const plugins = [
         let point2Y =
           chartCenterPoint.y + Math.sin(angle) * (model.outerRadius + 20);
 
-        let overlapsedPoint;
+        let suitableY;
         if (point2X < chartCenterPoint.x) {
-          overlapsedPoint = leftLabelCoordinates.find(
-            (y) => y + 7 > point2Y && y - 7 < point2Y
-          );
+          // on the left
+          suitableY = getSuitableY(point2Y, leftLabelCoordinates, "left");
         } else {
-          overlapsedPoint = rightLabelCoordinates.find(
-            (y) => y + 7 > point2Y && y - 7 < point2Y
-          );
+          // on the right
+
+          suitableY = getSuitableY(point2Y, rightLabelCoordinates, "right");
         }
 
-        if (overlapsedPoint && point2X < chartCenterPoint.x) {
-          point2Y += 10;
-        } else {
-          point2Y -= 10;
-        }
+        point2Y = suitableY;
 
         let value = dataset.data[i];
         if (dataset.polyline && dataset.polyline.formatter) {
